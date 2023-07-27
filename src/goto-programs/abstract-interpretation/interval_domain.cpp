@@ -1076,7 +1076,6 @@ void interval_domaint::assume(const expr2tc &cond)
   expr2tc new_cond = cond;
   simplify(new_cond);
 
-#if 0
   // Let's check whether this condition is always false
   if(
     enable_eval_assumptions &&
@@ -1086,7 +1085,6 @@ void interval_domaint::assume(const expr2tc &cond)
     make_bottom();
     return;
   }
-#endif
 
   assume_rec(new_cond, false);
 }
