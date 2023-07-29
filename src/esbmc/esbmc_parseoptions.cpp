@@ -839,7 +839,7 @@ int esbmc_parseoptionst::doit_k_induction_parallel()
     // Run bmc and only send results in two occasions:
     // 1. A bug was found, we send the step where it was found
     // 2. It couldn't find a bug
-    for(BigInt k_step = 1; k_step <= max_k_step; k_step += k_step_inc)
+    for(BigInt k_step = 1; k_step <= max_k_step; k_step *= k_step_inc)
     {
       bmct bmc(goto_functions, opts, context);
       bmc.options.set_option("unwind", integer2string(k_step));
@@ -908,7 +908,7 @@ int esbmc_parseoptionst::doit_k_induction_parallel()
         break;
 
       // Otherwise, we just need to check the base case for k = a_result.k
-      max_k_step = a_result.k + k_step_inc;
+      max_k_step = a_result.k * k_step_inc;
     }
 
     // Send information to parent that a bug was not found
@@ -943,7 +943,7 @@ int esbmc_parseoptionst::doit_k_induction_parallel()
     // Run bmc and only send results in two occasions:
     // 1. A proof was found, we send the step where it was found
     // 2. It couldn't find a proof
-    for(BigInt k_step = 2; k_step <= max_k_step; k_step += k_step_inc)
+    for(BigInt k_step = 2; k_step <= max_k_step; k_step *= k_step_inc)
     {
       bmct bmc(goto_functions, opts, context);
       bmc.options.set_option("unwind", integer2string(k_step));
@@ -1010,7 +1010,7 @@ int esbmc_parseoptionst::doit_k_induction_parallel()
     // Run bmc and only send results in two occasions:
     // 1. A proof was found, we send the step where it was found
     // 2. It couldn't find a proof
-    for(BigInt k_step = 2; k_step <= max_k_step; k_step += k_step_inc)
+    for(BigInt k_step = 2; k_step <= max_k_step; k_step *= k_step_inc)
     {
       bmct bmc(goto_functions, opts, context);
 
@@ -1093,7 +1093,7 @@ int esbmc_parseoptionst::doit_k_induction()
   // Get the increment
   unsigned k_step_inc = strtoul(cmdline.getval("k-step"), nullptr, 10);
 
-  for(BigInt k_step = 1; k_step <= max_k_step; k_step += k_step_inc)
+  for(BigInt k_step = 1; k_step <= max_k_step; k_step *= k_step_inc)
   {
     if(do_base_case(opts, goto_functions, k_step))
       return true;
@@ -1137,7 +1137,7 @@ int esbmc_parseoptionst::doit_falsification()
   // Get the increment
   unsigned k_step_inc = strtoul(cmdline.getval("k-step"), nullptr, 10);
 
-  for(BigInt k_step = 1; k_step <= max_k_step; k_step += k_step_inc)
+  for(BigInt k_step = 1; k_step <= max_k_step; k_step *= k_step_inc)
   {
     if(do_base_case(opts, goto_functions, k_step))
       return true;
@@ -1176,7 +1176,7 @@ int esbmc_parseoptionst::doit_incremental()
   // Get the increment
   unsigned k_step_inc = strtoul(cmdline.getval("k-step"), nullptr, 10);
 
-  for(BigInt k_step = 1; k_step <= max_k_step; k_step += k_step_inc)
+  for(BigInt k_step = 1; k_step <= max_k_step; k_step *= k_step_inc)
   {
     if(do_base_case(opts, goto_functions, k_step))
       return true;
@@ -1217,7 +1217,7 @@ int esbmc_parseoptionst::doit_termination()
   // Get the increment
   unsigned k_step_inc = strtoul(cmdline.getval("k-step"), nullptr, 10);
 
-  for(BigInt k_step = 1; k_step <= max_k_step; k_step += k_step_inc)
+  for(BigInt k_step = 1; k_step <= max_k_step; k_step *= k_step_inc)
   {
     if(!do_forward_condition(opts, goto_functions, k_step))
       return false;
