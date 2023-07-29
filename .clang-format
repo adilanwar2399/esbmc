@@ -20,7 +20,26 @@ AlwaysBreakTemplateDeclarations: 'true'
 BinPackArguments: 'false'
 BinPackParameters: 'false'
 BreakBeforeBinaryOperators: None
-BreakBeforeBraces: Allman
+# Allman breaks compatibility for LLVM lower than 13
+BreakBeforeBraces: Custom
+BraceWrapping:
+    BeforeLambdaBody: false
+    AfterCaseLabel: true
+    AfterClass: true
+    AfterControlStatement: Always
+    AfterEnum: true
+    AfterFunction: true
+    AfterNamespace: true
+    AfterStruct: true
+    AfterUnion: true
+    AfterExternBlock: true
+    BeforeCatch: true
+    BeforeElse: true
+    BeforeWhile: false
+    SplitEmptyFunction: true
+    SplitEmptyRecord: true
+    SplitEmptyNamespace: true
+
 BreakBeforeTernaryOperators: 'true'
 BreakConstructorInitializersBeforeComma: 'false'
 ColumnLimit: '80'
