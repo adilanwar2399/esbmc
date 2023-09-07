@@ -269,7 +269,7 @@ def get_command_line(strat, prop, arch, benchmark, concurrency, dargs):
     if concurrency:
       command_line += "--no-pointer-check --no-bounds-check "
     else:
-      command_line += "--no-pointer-check --interval-analysis --no-bounds-check --error-label ERROR --goto-unwind --unlimited-goto-unwind "
+      command_line += "--no-pointer-check --no-bounds-check --error-label ERROR --goto-unwind --unlimited-goto-unwind "
   else:
     print("Unknown property")
     exit(1)
@@ -278,9 +278,9 @@ def get_command_line(strat, prop, arch, benchmark, concurrency, dargs):
   if concurrency: # Concurrency only works with incremental
     command_line += "--incremental-bmc "
   elif strat == "fixed":
-    command_line += "--k-induction --max-inductive-step 3 "
+    command_line += "--incremental-bmc "
   elif strat == "kinduction":
-    command_line += "--k-induction --max-inductive-step 3 "
+    command_line += "--incremental-bmc "
   elif strat == "falsi":
     command_line += "--falsification "
   elif strat == "incr":
