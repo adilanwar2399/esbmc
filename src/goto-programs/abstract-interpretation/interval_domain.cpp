@@ -633,18 +633,20 @@ expr2tc interval_domaint::make_expression_value<real_intervalt>(
   const type2tc &type,
   bool upper) const
 {
-  expr2tc value = constant_floatbv2tc(ieee_floatt(ieee_float_spect(
-    to_floatbv_type(type).fraction, to_floatbv_type(type).exponent)));
+  expr2tc value = gen_zero(type);
   constant_floatbv2t &v = to_constant_floatbv2t(value);
 
   const auto d = (upper ? interval.upper : interval.lower).convert_to<double>();
   v.value.from_double(d);
+
+  // From double changes the spec. Solvers will complain that we are comparing
+  // orange floats to apple floats. Let's convert to the original type sort.
+  v.value.change_spec(ieee_float_spect(to_floatbv_type(type).fraction, to_floatbv_type(type).exponent));
   assert(!v.value.is_NaN() && !v.value.is_infinity());
   if(upper)
     v.value.increment(true);
   else
     v.value.decrement(true);
-
   return value;
 }
 
