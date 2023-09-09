@@ -44,6 +44,9 @@ static void optimize_expression(expr2tc &expr, const interval_domaint &state)
     return;
   }
 
+  if(is_constant_int2t(expr))
+    return;
+
   // Function calls might have an implicit assignment
   if(is_code_function_call2t(expr))
   {

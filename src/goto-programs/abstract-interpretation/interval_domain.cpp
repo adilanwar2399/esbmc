@@ -1,6 +1,7 @@
 /// \file
 /// Interval Domain
 // TODO: Ternary operators, lessthan into lessthanequal for integers
+#include "irep2/irep2_expr.h"
 #include <goto-programs/abstract-interpretation/interval_domain.h>
 #include <goto-programs/abstract-interpretation/bitwise_bounds.h>
 #include <util/arith_tools.h>
@@ -840,19 +841,34 @@ void interval_domaint::transform(
     // of instructions because this is a GOTO.
     goto_programt::const_targett next = from;
     next++;
-    if(from->targets.front() != next) // If equal then a skip
+
+    /*
+      IF !(cond) goto exit
+        ...
+      exit: 
+     */
+
+    // FROM: IF instruction
+    // NEXT: either next instruction or exit
+
+    // If the target of goto is inside the loop, then the condition does not restrict
+    if(from->targets.front() == next)
+      break;
+
+    // False branch
+    if(next == to)
     {
-      if(next == to)
-      {
-        expr2tc guard = instruction.guard;
-        make_not(guard);
-        assume(guard);
-      }
-      else
-        assume(instruction.guard);
+      expr2tc guard = instruction.guard;
+      guard->dump();
+      make_not(guard);
+      assume(guard);
     }
-  }
-  break;
+    // True branch
+    else
+      assume(instruction.guard);
+    break;
+  }  
+  
 
   case ASSUME:
     assume(instruction.guard);
@@ -970,6 +986,9 @@ void interval_domaint::assign(const expr2tc &expr)
       clear_state();
     return;
   }
+
+  if(is_code_function_call2t(c.source))
+    return;
 
   if(isbvop)
   {

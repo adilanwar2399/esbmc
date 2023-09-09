@@ -4,6 +4,7 @@
 #ifndef CPROVER_ANALYSES_INTERVAL_DOMAIN_H
 #define CPROVER_ANALYSES_INTERVAL_DOMAIN_H
 
+#include "irep2/irep2_expr.h"
 #include <goto-programs/abstract-interpretation/ai.h>
 #include <goto-programs/abstract-interpretation/interval_template.h>
 #include <goto-programs/abstract-interpretation/wrapped_interval.h>
@@ -112,9 +113,16 @@ protected:
 public:
   bool merge(
     const interval_domaint &b,
-    goto_programt::const_targett,
+    goto_programt::const_targett prev,
     goto_programt::const_targett)
   {
+    const goto_programt::instructiont &instruction = *prev;
+
+    // There is no need to merge things after a return
+    if(instruction.type == RETURN)
+      return false;
+
+    
     return join(b);
   }
 
