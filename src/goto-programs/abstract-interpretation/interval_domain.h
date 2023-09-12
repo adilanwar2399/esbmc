@@ -114,9 +114,13 @@ protected:
 public:
   bool merge(
     const interval_domaint &b,
-    goto_programt::const_targett,
-    goto_programt::const_targett)
+    goto_programt::const_targett prev,
+    goto_programt::const_targett next)
   {
+
+    // Joining from recursion breaks analysis
+    if(prev->function == next->function && prev->type == END_FUNCTION)
+      return false;
     return join(b);
   }
 
