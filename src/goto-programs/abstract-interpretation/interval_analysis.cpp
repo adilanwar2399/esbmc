@@ -36,6 +36,10 @@ static void optimize_expression(expr2tc &expr, const interval_domaint &state)
   if(is_address_of2t(expr))
     return;
 
+  // non-bool Typecasts are not supported (for now)
+  if(is_typecast2t(expr) && !is_bool_type(to_typecast2t(expr).type))
+    return;
+
   // We can't replace the target of an assignment.
   // int x = 3; x = 4; would become int x = 3; 3 = 4;
   if(is_code_assign2t(expr))
