@@ -642,7 +642,8 @@ expr2tc interval_domaint::make_expression_value<real_intervalt>(
 
   // From double changes the spec. Solvers will complain that we are comparing
   // orange floats to apple floats. Let's convert to the original type sort.
-  v.value.change_spec(ieee_float_spect(to_floatbv_type(type).fraction, to_floatbv_type(type).exponent));
+  v.value.change_spec(ieee_float_spect(
+    to_floatbv_type(type).fraction, to_floatbv_type(type).exponent));
   assert(!v.value.is_NaN() && !v.value.is_infinity());
   if(upper)
     v.value.increment(true);
@@ -859,7 +860,6 @@ void interval_domaint::transform(
     if(next == to)
     {
       expr2tc guard = instruction.guard;
-      guard->dump();
       make_not(guard);
       assume(guard);
     }
@@ -867,8 +867,7 @@ void interval_domaint::transform(
     else
       assume(instruction.guard);
     break;
-  }  
-  
+  }
 
   case ASSUME:
     assume(instruction.guard);
@@ -878,6 +877,16 @@ void interval_domaint::transform(
   {
     const code_function_call2t &code_function_call =
       to_code_function_call2t(instruction.code);
+
+    // This analysis is context-insensitive, meaning that the function does not have information about
+    // any parameters during its invocation. This is fine for most cases, except recursive functions as
+    // the base case will affect all cases.
+    bool is_recursive_call =
+      is_symbol2t(code_function_call.function) &&
+      to_symbol2t(code_function_call.function).thename == instruction.function;
+    if(is_recursive_call)
+      break;
+
     if(!is_nil_expr(code_function_call.ret))
       havoc_rec(code_function_call.ret);
     break;
