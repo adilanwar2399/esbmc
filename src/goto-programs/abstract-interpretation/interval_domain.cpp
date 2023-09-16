@@ -904,66 +904,71 @@ void interval_domaint::transform(
   }
 }
 
+
+#include <execution>
 template <class IntervalMap>
 bool interval_domaint::join(
   IntervalMap &new_map,
   const IntervalMap &previous_map)
 {
-  bool result = false;
-  for(auto new_it = new_map.begin(); new_it != new_map.end();) // no new_it++
-  {
-    // search for the variable that needs to be merged
-    // containers have different sizes and ordering
-    const auto b_it = previous_map.find(new_it->first);
-    const auto f_it = fixpoint_map.find(new_it->first);
+  
+  bool result = false; // this does not need to be atomic as only writing it to true will ever happen
+  std::for_each(
+    std::execution::par_unseq,
+    std::begin(new_map),
+    std::end(new_map),
+    [&](auto i)
+    {
+    const auto &b_it = previous_map.find(i.first);
+    const auto &f_it = fixpoint_map.find(i.first);
     if(b_it == previous_map.end())
     {
-      new_it = new_map.erase(new_it);
+      new_map.erase(i.first);      
       if(f_it != fixpoint_map.end())
         fixpoint_map.erase(f_it);
       result = true;
     }
     else
     {
-      auto previous = new_it->second; // [0,0] ... [0, +inf]
-      auto after = b_it->second;      // [1,100] ... [1, 100]
-      new_it->second.join(after);     // HULL // [0,100] ... [0, +inf]
+      const auto &previous = i.second; // [0,0] ... [0, +inf]
+      const auto &after = b_it->second;      // [1,100] ... [1, 100]
+      i.second.join(after);     // HULL // [0,100] ... [0, +inf]
       // Did we reach a fixpoint?
-      if(new_it->second != previous)
+      if(i.second != previous)
       {
         if(f_it != fixpoint_map.end())
           f_it->second += 1;
         else
-          fixpoint_map[new_it->first] = 0;
+          fixpoint_map[i.first] = 0;
 
         result = true;
+#if 0
         // Try to extrapolate
-        if(widening_extrapolate && fixpoint_map[new_it->first] > fixpoint_limit)
+        if(widening_extrapolate && fixpoint_map[i.first] > fixpoint_limit)
         {
-          new_it->second = extrapolate_intervals(
+          i.second = extrapolate_intervals(
             previous,
-            new_it
-              ->second); // ([0,0], [0,100] -> [0,inf]) ... ([0,inf], [0,100] --> [0,inf])
+            i.second); // ([0,0], [0,100] -> [0,inf]) ... ([0,inf], [0,100] --> [0,inf])
         }
+	#endif
       }
-
       else
       {
+#if 0
         // Found a fixpoint, we might try to narrow now!
         if(widening_narrowing)
         {
-          after = interpolate_intervals(
-            new_it->second,
-            b_it
-              ->second); // ([0,100], [1,100] --> [0,100] ... ([0,inf], [1,100] --> [0,100]))
-          result |= new_it->second != after;
-          new_it->second = after;
+          after = interpolate_intervals( i.second, b_it->second); // ([0,100], [1,100] --> [0,100] ... ([0,inf], [1,100] --> [0,100]))
+          result |= i.second != after;
+          i.second = after;
         }
+	#endif
       }
 
-      new_it++;
+
     }
-  }
+  });
+ 
   return result;
 }
 
