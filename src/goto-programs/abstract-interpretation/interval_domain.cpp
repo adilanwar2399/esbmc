@@ -904,66 +904,45 @@ void interval_domaint::transform(
   }
 }
 
+#include <execution>
+#include <algorithm>
+
 template <class IntervalMap>
 bool interval_domaint::join(
   IntervalMap &new_map,
   const IntervalMap &previous_map)
 {
   bool result = false;
-  for(auto new_it = new_map.begin(); new_it != new_map.end();) // no new_it++
-  {
-    // search for the variable that needs to be merged
-    // containers have different sizes and ordering
-    const auto b_it = previous_map.find(new_it->first);
-    const auto f_it = fixpoint_map.find(new_it->first);
-    if(b_it == previous_map.end())
-    {
-      new_it = new_map.erase(new_it);
-      if(f_it != fixpoint_map.end())
-        fixpoint_map.erase(f_it);
-      result = true;
-    }
-    else
-    {
-      auto previous = new_it->second; // [0,0] ... [0, +inf]
-      auto after = b_it->second;      // [1,100] ... [1, 100]
-      new_it->second.join(after);     // HULL // [0,100] ... [0, +inf]
-      // Did we reach a fixpoint?
-      if(new_it->second != previous)
+
+  // Name convention is terrible.
+  // Previous Map mean the latest intervals computed
+  // New Map is the previous map that needs to me merged
+
+  // Remove uneeded symbols
+  std::for_each(
+    std::execution::par_unseq,
+    std::begin(new_map),
+    std::end(new_map),
+    [&](auto &item) {
+      const auto &b_it = previous_map.find(item.first);
+      if(b_it == previous_map.end())
       {
-        if(f_it != fixpoint_map.end())
-          f_it->second += 1;
-        else
-          fixpoint_map[new_it->first] = 0;
-
+        item.second.lower_set = false;
+        item.second.upper_set = false;
         result = true;
-        // Try to extrapolate
-        if(widening_extrapolate && fixpoint_map[new_it->first] > fixpoint_limit)
-        {
-          new_it->second = extrapolate_intervals(
-            previous,
-            new_it
-              ->second); // ([0,0], [0,100] -> [0,inf]) ... ([0,inf], [0,100] --> [0,inf])
-        }
       }
-
       else
       {
-        // Found a fixpoint, we might try to narrow now!
-        if(widening_narrowing)
+        const auto previous = item.second;
+        const auto &after = b_it->second;
+        item.second.join(after);
+        if(item.second != previous)
         {
-          after = interpolate_intervals(
-            new_it->second,
-            b_it
-              ->second); // ([0,100], [1,100] --> [0,100] ... ([0,inf], [1,100] --> [0,100]))
-          result |= new_it->second != after;
-          new_it->second = after;
+          result = true;
         }
       }
+    });
 
-      new_it++;
-    }
-  }
   return result;
 }
 
