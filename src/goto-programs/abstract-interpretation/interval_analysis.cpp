@@ -107,7 +107,8 @@ void instrument_intervals(
   // Instrumentation of assumptions
   Forall_goto_program_instructions(i_it, goto_function.body)
   {
-    if(!(i_it->is_goto() || i_it->is_assume() || i_it->is_assert()))
+    //if(!(i_it->is_goto() || i_it->is_assume() || i_it->is_assert()))
+    if(!(i_it->is_assume() || i_it->is_assert()))
       continue;
 
     // Let's instrument everything that affect the current instruction
