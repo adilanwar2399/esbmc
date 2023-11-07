@@ -1148,10 +1148,8 @@ int esbmc_parseoptionst::do_bmc_strategy(
            .is_false())
         return 0;
 
-      /* Disable this for now as it is causing more than 100 errors on SV-COMP
       if(!is_inductive_step_violated(options, goto_functions, k_step))
         return false;
-      */
     }
     // incremental-bmc
     if(options.get_bool_option("incremental-bmc"))
