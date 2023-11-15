@@ -5,20 +5,20 @@
 #include <util/i2string.h>
 #include <util/std_expr.h>
 
-void goto_k_induction(goto_functionst &goto_functions)
+void goto_k_induction(goto_functionst &goto_functions, const ait<interval_domaint> &intervals_ait)
 {
   Forall_goto_functions(it, goto_functions)
     if(it->second.body_available)
-      goto_k_inductiont(it->first, goto_functions, it->second);
+      goto_k_inductiont(it->first, goto_functions, it->second, intervals_ait);
 
   goto_functions.update();
 }
 
-void goto_termination(goto_functionst &goto_functions)
+void goto_termination(goto_functionst &goto_functions, const ait<interval_domaint> &intervals_ait)
 {
   Forall_goto_functions(it, goto_functions)
     if(it->second.body_available)
-      goto_k_inductiont(it->first, goto_functions, it->second);
+      goto_k_inductiont(it->first, goto_functions, it->second, intervals_ait);
   goto_functions.update();
 
   auto function = goto_functions.function_map.find("__ESBMC_main");
@@ -194,6 +194,11 @@ void goto_k_inductiont::make_nondet_assign(
 {
   auto const &loop_vars = loop.get_modified_loop_vars();
 
+  // Check instruction before loop
+  loop_head--;
+  const interval_domaint &d = intervals_ait[loop_head];
+  loop_head++;
+  
   goto_programt dest;
   for(auto const &lhs : loop_vars)
   {
@@ -204,12 +209,24 @@ void goto_k_inductiont::make_nondet_assign(
       config.options.get_bool_option("add-symex-value-sets") &&
       is_pointer_type(lhs))
       continue;
-    expr2tc rhs = gen_nondet(lhs->type);
+     
 
+    // Symbol = NONDET
+    expr2tc rhs = gen_nondet(lhs->type);
     goto_programt::targett t = dest.add_instruction(ASSIGN);
     t->inductive_step_instruction = true;
     t->code = code_assign2tc(lhs, rhs);
     t->location = loop_head->location;
+
+    // Adds some invariants
+    expr2tc tmp = d.make_expression(lhs);
+    if(!is_true(tmp))
+    {
+      t = dest.add_instruction(ASSUME);
+      t->inductive_step_instruction = true;
+      t->guard = tmp;
+      t->location = loop_head->location;
+    }
   }
 
   goto_function.body.insert_swap(loop_head, dest);

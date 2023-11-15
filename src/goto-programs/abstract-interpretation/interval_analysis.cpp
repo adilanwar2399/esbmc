@@ -174,9 +174,9 @@ void dump_intervals(
 void interval_analysis(
   goto_functionst &goto_functions,
   const namespacet &ns,
-  const optionst &options)
+  const optionst &options,
+  ait<interval_domaint> &interval_analysis)
 {
-  ait<interval_domaint> interval_analysis;
   interval_domaint::set_options(options);
   interval_analysis(goto_functions, ns);
 

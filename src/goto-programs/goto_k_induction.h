@@ -5,10 +5,11 @@
 #include <goto-programs/goto_loops.h>
 #include <util/guard.h>
 #include <irep2/irep2_expr.h>
+#include <goto-programs/abstract-interpretation/interval_analysis.h>
 
-void goto_k_induction(goto_functionst &goto_functions);
+void goto_k_induction(goto_functionst &goto_functions, const ait<interval_domaint> &intervals_ait);
 
-void goto_termination(goto_functionst &goto_functions);
+void goto_termination(goto_functionst &goto_functions, const ait<interval_domaint> &intervals_ait);
 
 class goto_k_inductiont : public goto_loopst
 {
@@ -16,8 +17,9 @@ public:
   goto_k_inductiont(
     const irep_idt &_function_name,
     goto_functionst &_goto_functions,
-    goto_functiont &_goto_function)
-    : goto_loopst(_function_name, _goto_functions, _goto_function)
+    goto_functiont &_goto_function,
+    const ait<interval_domaint> &intervals_ait)
+    : goto_loopst(_function_name, _goto_functions, _goto_function), intervals_ait(intervals_ait)
   {
     if(function_loops.size())
       goto_k_induction();
@@ -55,6 +57,9 @@ protected:
 
   void
   assume_cond(const expr2tc &cond, goto_programt &dest, const locationt &loc);
+
+private:
+  const ait<interval_domaint> &intervals_ait;
 };
 
 #endif /* GOTO_PROGRAMS_GOTO_K_INDUCTION_H_ */

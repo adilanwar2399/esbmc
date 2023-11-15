@@ -1662,9 +1662,10 @@ bool esbmc_parseoptionst::process_goto_program(
         goto_partial_inline(goto_functions, options, ns);
     }
 
+    ait<interval_domaint> intervals_ait;
     if(cmdline.isset("interval-analysis") || cmdline.isset("goto-contractor"))
     {
-      interval_analysis(goto_functions, ns, options);
+      interval_analysis(goto_functions, ns, options, intervals_ait);
     }
 
     if(
@@ -1674,7 +1675,7 @@ bool esbmc_parseoptionst::process_goto_program(
       // Always remove skips before doing k-induction.
       // It seems to fix some issues for now
       remove_no_op(goto_functions);
-      goto_k_induction(goto_functions);
+      goto_k_induction(goto_functions, intervals_ait);
     }
 
     if(
@@ -1693,7 +1694,7 @@ bool esbmc_parseoptionst::process_goto_program(
     }
 
     if(cmdline.isset("termination"))
-      goto_termination(goto_functions);
+      goto_termination(goto_functions, intervals_ait);
 
     goto_check(ns, options, goto_functions);
 

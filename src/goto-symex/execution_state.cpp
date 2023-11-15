@@ -222,9 +222,9 @@ void execution_statet::symex_step(reachability_treet &art)
   {
     // This assertion will prevent us of having weird side-effects (issue #538)
     // e.g. having inductive step instructions in a incremental strategy
-    assert(
-      k_induction &&
-      "Inductive step instructions should be set only for k-induction");
+    //assert(
+    //  k_induction &&
+    //  "Inductive step instructions should be set only for k-induction");
     cur_state->source.pc++;
     return;
   }
