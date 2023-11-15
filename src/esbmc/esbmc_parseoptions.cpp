@@ -1148,7 +1148,7 @@ int esbmc_parseoptionst::do_bmc_strategy(
            .is_false())
         return 0;
 
-      if(!is_inductive_step_violated(options, goto_functions, k_step))
+      if(is_inductive_step_violated(options, goto_functions, k_step).is_false())
         return false;
     }
     // incremental-bmc
