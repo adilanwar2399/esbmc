@@ -267,6 +267,7 @@ def get_command_line(strat, prop, arch, benchmark, concurrency, dargs, esbmc_ci)
   if prop == Property.termination:
     command_line += "--no-pointer-check --no-bounds-check --no-assertions "
     command_line += "--termination --max-inductive-step 3 "
+    command_line += "--interval-analysis --interval-analysis-arithmetic --interval-analysis-bitwise --interval-analysis-wrapped --interval-analysis-extrapolate "
     return command_line
 
   if prop == Property.overflow:
