@@ -195,9 +195,9 @@ void goto_k_inductiont::make_nondet_assign(
   auto const &loop_vars = loop.get_modified_loop_vars();
 
   // Check instruction before loop
-  loop_head--;
+  //loop_head--;
   const interval_domaint &d = intervals_ait[loop_head];
-  loop_head++;
+  //loop_head++;
   
   goto_programt dest;
   for(auto const &lhs : loop_vars)
