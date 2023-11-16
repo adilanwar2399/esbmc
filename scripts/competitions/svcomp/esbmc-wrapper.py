@@ -286,7 +286,7 @@ def get_command_line(strat, prop, arch, benchmark, concurrency, dargs, esbmc_ci)
     if concurrency:
       command_line += "--no-pointer-check --no-bounds-check "
     else:
-      command_line += "--no-pointer-check --interval-analysis --no-bounds-check --error-label ERROR --goto-unwind --unlimited-goto-unwind "
+      command_line += "--no-pointer-check --interval-analysis --no-bounds-check --error-label ERROR --goto-unwind --unlimited-goto-unwind --interval-analysis-arithmetic --interval-analysis-bitwise --interval-analysis-wrapped --interval-analysis-extrapolate"
   elif prop == Property.datarace:
     # TODO: can we do better in case 'concurrency == False'?
     command_line += "--no-pointer-check --no-bounds-check --data-races-check --no-assertions "
