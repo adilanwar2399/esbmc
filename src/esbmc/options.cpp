@@ -123,7 +123,9 @@ const struct group_opt_templ all_cmd_options[] = {
     {"version", NULL, "show current ESBMC version and exit"},
     {"cex-output",
      boost::program_options::value<std::string>(),
-     "save the counterexample into a file"},
+     "save the counterexample into a file or, "
+     "in multi-property mode, multiple files with name prefix 'N-' "
+     "where 'N' is a decimal increasing from zero"},
     {"file-output",
      boost::program_options::value<std::string>(),
      "redirects every message into a file (no stdout/stderr)"},
@@ -184,8 +186,8 @@ const struct group_opt_templ all_cmd_options[] = {
     {"unroll-loops", NULL, ""},
     {"no-slice", NULL, "do not remove unused equations"},
     {"multi-fail-fast",
-     NULL,
-     "stops after first VCC violation in multi property mode"},
+     boost::program_options::value<int>()->value_name("n"),
+     "stops after first n VCC violation found in multi property mode"},
     {"no-slice-name",
      boost::program_options::value<std::vector<std::string>>()->value_name(
        "name"),
@@ -488,8 +490,9 @@ const struct group_opt_templ all_cmd_options[] = {
     {"make-assert-false", NULL, "convert every assertion to false"},
     {"goto-coverage",
      NULL,
-     "this activates --make-assert-false and --multi-property and "
-     "deactivates --keep-verified-claims"},
+     "this activates --make-assert-false and --multi-property, "
+     "deactivates --keep-verified-claims, and "
+     "shows the coverage of assertion instances"},
     {"goto-coverage-claims",
      NULL,
      "enable goto-coverage and shows all reached claims"}}},
